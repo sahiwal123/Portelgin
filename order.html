@@ -1,0 +1,89 @@
+<!-- views/order.html -->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Restaurant</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+<% include partials/header %>
+    <div class="container">
+        <h1>Place Order</h1>
+        <form id="order-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="menu_item">Menu Item</label>
+                <select class="form-control" id="menu_item" required>
+                    <!-- Menu items will be populated here -->
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Place Order</button>
+        </form>
+    </div>
+<% include partials/footer %>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/Gull Restaurant/app.js"></script>
+    <script src="/user.js"></script>
+<script src="/order.js"></script>
+<script>
+    // Fetch menu items from the server
+    fetch('/api/menu')
+        .then(response => response.json())
+        .then(data => {
+            const menuItemSelect = document.getElementById('menu_item');
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item._id;
+                option.text = `${item.name} - $${item.price}`;
+                menuItemSelect.appendChild(option);
+            });
+        });
+
+    // Handle form submission
+    document.getElementById('order-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const menu_item_id = document.getElementById('menu_item').value;
+        
+        fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email, menu_item_id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(`Order placed successfully! Your order number is ${data.order_number}`);
+            window.location.href = '/';
+        });
+    });
+</script>
+<script>
+    // Function to load HTML content into a div
+    function loadHTML(url, elementId) {
+        fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById(elementId).innerHTML = data;
+            });
+    }
+
+    // Load header and footer
+    loadHTML('header.html', 'header');
+    loadHTML('footer.html', 'footer');
+</script>
+    </body>
+</html>
